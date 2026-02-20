@@ -142,6 +142,14 @@ const chart = new Chart(ctx, {
   },
   options: {
     responsive: true,
+
+  interaction: {
+    mode: 'nearest',
+    intersect: false
+  },
+
+  events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
+
     plugins: {
       legend: {
         labels: {
@@ -159,6 +167,34 @@ const chart = new Chart(ctx, {
         }
       }
     }
+  }
+});
+ctx.canvas.addEventListener('click', function (evt) {
+
+  const points = chart.getElementsAtEventForMode(
+    evt,
+    'nearest',
+    { intersect: false },
+    true
+  );
+
+  if (points.length) {
+    const firstPoint = points[0];
+
+    chart.setActiveElements([{
+      datasetIndex: firstPoint.datasetIndex,
+      index: firstPoint.index
+    }]);
+
+    chart.tooltip.setActiveElements([{
+      datasetIndex: firstPoint.datasetIndex,
+      index: firstPoint.index
+    }], {
+      x: evt.x,
+      y: evt.y
+    });
+
+    chart.update();
   }
 });
 
