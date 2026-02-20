@@ -3,7 +3,10 @@ const totalPointsDisplay = document.getElementById("totalPoints");
 const projectionText = document.getElementById("projectionText");
 
 const TARGET_POINTS = 10000;
-
+// ▼▼ 追加 ▼▼
+const START_DATE = new Date(2026, 1, 21); // 2026/02/21（※月は0始まり）
+const END_DATE = new Date(2026, 6, 19);   // 2026/07/19
+// ▲▲ 追加 ▲▲
 let viewMode = "all"; // "all" or "15"
 
 const viewAllButton = document.getElementById("viewAll");
@@ -25,7 +28,7 @@ let data;
 
 if (!rawData) {
   data = {
-    startDate: new Date().toISOString(),
+    startDate: START_DATE.toISOString(), // ←変更
     dailyRecords: []
   };
 } else if (rawData.dailyRecords) {
@@ -57,9 +60,9 @@ function getTodayString() {
 }
 
 function getDaysPassed() {
-  const start = new Date(data.startDate);
   const today = new Date();
-  return Math.floor((today - start) / 86400000) + 1;
+  const diff = Math.floor((today - START_DATE) / 86400000) + 1;
+  return Math.max(diff, 0); // 開始前は0
 }
 
 function getTotalPoints() {
@@ -70,14 +73,20 @@ function updateDisplay() {
   const total = getTotalPoints();
   totalPointsDisplay.textContent = `${total} / ${TARGET_POINTS}`;
 
-  const days = getDaysPassed();
-  const pace = total / days;
-  const projected = Math.round(pace * 150);
+  const daysPassed = getDaysPassed();
+
+  const totalPeriodDays =
+    Math.floor((END_DATE - START_DATE) / 86400000) + 1;
+
+  const pace = daysPassed > 0 ? total / daysPassed : 0;
+
+  const projected = Math.round(pace * totalPeriodDays);
 
   projectionText.innerHTML = `
-  ${days} 日経過<br>
-  このペースだと夏休みまでに ${projected} ポイントになります。
-`;
+  ${daysPassed} 日経過<br>
+  7/19までに ${projected} ポイントの予測です。
+  `;
+
   updateChart();
 }
 
@@ -109,70 +118,141 @@ addButton.addEventListener("click", () => {
 });
 const ctx = document.getElementById("pointChart").getContext("2d");
 
-let chart = new Chart(ctx, {
+const chart = new Chart(ctx, {
   type: "line",
   data: {
     labels: [],
-    datasets: [{
-        label: "累計ポイント推移",
+    datasets: [
+      {
+        label: "実績",
         data: [],
+        borderWidth: 3,
+        tension: 0.3,
+        fill: false
+      },
+      {
+        label: "予測",
+        data: [],
+        borderWidth: 2,
+        tension: 0.3,
         fill: false,
-        tension: 0.2,
-        borderWidth: 4,
-        pointRadius: 3
-      }]
+        borderDash: [6, 6]
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          generateLabels(chart) {
+            const datasets = chart.data.datasets;
+            return datasets.map((dataset, i) => ({
+              text: dataset.label,
+              fillStyle: dataset.borderColor,   // ← ここが重要
+              strokeStyle: dataset.borderColor, // ← ここも重要
+              lineWidth: 3,
+              hidden: !chart.isDatasetVisible(i),
+              index: i
+            }));
+          }
+        }
+      }
+    }
   }
 });
 
 function updateChart() {
-    const start = new Date(data.startDate);
-    const today = new Date();
-  
-    const daysPassed = Math.floor((today - start) / 86400000) + 1;
-  
-    let cumulativeData = [];
-    let labels = [];
-    let cumulative = 0;
-  
-    for (let i = 0; i < daysPassed; i++) {
-      const currentDate = new Date(start.getTime() + i * 86400000)
-        .toISOString()
-        .split("T")[0];
-  
-      const record = data.dailyRecords.find(r => r.date === currentDate);
-  
-      if (record) {
-        cumulative += record.points;
-      }
-  
-      cumulativeData.push(cumulative);
-      labels.push(`Day ${i + 1}`);
+
+  const daysPassed = getDaysPassed();
+
+  const totalPeriodDays =
+    Math.floor((END_DATE - START_DATE) / 86400000) + 1;
+
+  let labels = [];
+  let actualData = [];
+  let predictedData = [];
+
+  let cumulative = 0;
+
+  const total = getTotalPoints();
+  const pace = daysPassed > 0 ? total / daysPassed : 0;
+
+  for (let i = 0; i < totalPeriodDays; i++) {
+
+    const currentDate = new Date(
+      START_DATE.getTime() + i * 86400000
+    );
+
+    const iso = currentDate.toISOString().split("T")[0];
+
+    const label =
+      (currentDate.getMonth() + 1) + "/" +
+      currentDate.getDate();
+
+    const record = data.dailyRecords.find(r => r.date === iso);
+
+    if (record) {
+      cumulative += record.points;
     }
-  
-    if (viewMode === "15" && cumulativeData.length > 15) {
-      cumulativeData = cumulativeData.slice(-15);
-      labels = labels.slice(-15);
+
+    labels.push(label);
+
+    if (i < daysPassed) {
+      actualData.push(cumulative);
+      predictedData.push(null);
+    } else {
+      actualData.push(null);
+      predictedData.push(
+        Math.round(total + pace * (i - daysPassed + 1))
+      );
     }
-  
-    chart.data.labels = labels;
-    chart.data.datasets[0].data = cumulativeData;
-    // 累計割合
-// 累計割合（0〜1）
-const total = getTotalPoints();
-const ratio = Math.min(total / TARGET_POINTS, 1);
-
-// Hue を 0〜360 に変化させる
-const hue = Math.floor(360 * ratio);
-
-// 彩度と明度は固定
-const dynamicColor = `hsl(${hue}, 80%, 50%)`;
-
-chart.data.datasets[0].borderColor = dynamicColor;
-chart.data.datasets[0].pointBackgroundColor = dynamicColor;
-chart.data.datasets[0].backgroundColor = dynamicColor;
-chart.data.datasets[0].pointBorderColor = dynamicColor;
-    chart.update();
   }
+
+  // ▼▼ 直近表示の修正 ▼▼
+  if (viewMode === "15") {
+
+    const FUTURE_DAYS = 7; // ←未来を何日見せるか
+
+    const startIndex = Math.max(daysPassed - 15, 0);
+    const endIndex = Math.min(
+      daysPassed + FUTURE_DAYS,
+      totalPeriodDays
+    );
+
+    labels = labels.slice(startIndex, endIndex);
+    actualData = actualData.slice(startIndex, endIndex);
+    predictedData = predictedData.slice(startIndex, endIndex);
+  }
+  // ▲▲ 修正ここまで ▲▲
+
+  chart.data.labels = labels;
+  chart.data.datasets[0].data = actualData;
+  chart.data.datasets[1].data = predictedData;
+
+  const ratio = Math.min(total / TARGET_POINTS, 1);
+  const hue = Math.floor(360 * ratio);
+  const dynamicColor = `hsl(${hue}, 80%, 50%)`;
+
+  chart.data.datasets[0].borderColor = dynamicColor;
+  chart.data.datasets[0].pointBackgroundColor = dynamicColor;
+
+  chart.data.datasets[1].borderColor = "rgba(0,0,0,0.3)";
+  chart.data.datasets[1].borderDash = [6, 6];
+// ▼▼ ここを追加 ▼▼
+
+// viewMode が "15" のときだけ予測に点を表示
+if (viewMode === "15") {
+  chart.data.datasets[1].pointRadius = 3;
+  chart.data.datasets[1].pointHoverRadius = 5;
+} else {
+  chart.data.datasets[1].pointRadius = 0;
+  chart.data.datasets[1].pointHoverRadius = 0;
+}
+
+// ▲▲ 追加ここまで ▲▲
+  chart.update();
+}
 const resetButton = document.getElementById("resetButton");
 
 resetButton.addEventListener("click", () => {

@@ -3,8 +3,8 @@
     "short_name": "一万貯金",
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#F4F5F7",
-    "theme_color": "#800000",
+    "background_color": "#191970",
+    "theme_color": "#191970",
     "icons": [
       {
         "src": "images/icon-192.png",
