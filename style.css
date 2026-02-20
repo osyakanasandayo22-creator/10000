@@ -143,11 +143,14 @@ body {
     opacity: 0.85;
   }
   /* 予測テキストとトグルの間に余白 */
-.projection {
-    margin-bottom: 28px;
-    padding-bottom: 18px;
+  .projection {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
     border-bottom: 1px solid #ddd;
-  }
+    max-width: 500px;      /* カード幅に合わせる */
+    margin-left: auto;
+    margin-right: auto;
+}
   
   /* トグル側にも少し上余白 */
   .view-toggle {
