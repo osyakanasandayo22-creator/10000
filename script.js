@@ -81,52 +81,32 @@ function updateDisplay() {
   updateChart();
 }
 
-addButton.addEventListener("click", () => {
+const pointInput = document.getElementById("pointInput");
 
-    let value;
-  
-    while (true) {
-  
-      const input = prompt("何ポイント投入しますか？（整数）");
-  
-      if (input === null) return; // キャンセルで終了
-  
-      value = Number(input);
-  
-      // 数値でない場合
-      if (!Number.isFinite(value)) {
-        alert("数値を入力してください");
-        continue;
-      }
-  
-      // 整数でない場合
-      if (!Number.isInteger(value)) {
-        alert("整数で入力してください");
-        continue;
-      }
-  
-      // 0は禁止（必要なら消してください）
-      if (value === 0) {
-        alert("0以外の整数を入力してください");
-        continue;
-      }
-  
-      break; // 条件を満たしたらループ脱出
-    }
-  
-    const today = getTodayString();
-    const existing = data.dailyRecords.find(r => r.date === today);
-  
-    if (existing) {
-      existing.points += value;
-    } else {
-      data.dailyRecords.push({ date: today, points: value });
-    }
-  
-    saveData();
-    updateDisplay();
-  
-  });
+addButton.addEventListener("click", () => {
+  const value = Number(pointInput.value);
+
+  // バリデーション
+  if (!Number.isFinite(value) || !Number.isInteger(value) || value === 0) {
+    alert("1以上の整数を入力してください");
+    return;
+  }
+
+  const today = getTodayString();
+  const existing = data.dailyRecords.find(r => r.date === today);
+
+  if (existing) {
+    existing.points += value;
+  } else {
+    data.dailyRecords.push({ date: today, points: value });
+  }
+
+  saveData();
+  updateDisplay();
+
+  // 入力欄をクリア
+  pointInput.value = "";
+});
 const ctx = document.getElementById("pointChart").getContext("2d");
 
 let chart = new Chart(ctx, {
