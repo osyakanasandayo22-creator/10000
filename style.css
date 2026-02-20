@@ -128,6 +128,7 @@ button {
 /* canvasは親幅にフィット */
 canvas {
     width: 100% !important;
+    max-width: 500px;  /* カード幅に合わせる */
     height: auto !important;
     display: block;
     margin: 0 auto;
