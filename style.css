@@ -1,33 +1,34 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    margin: 0;
+    margin: 0 auto;
     padding: 20px;
     background: #f5f6f8;
     text-align: center;
-  }
-  
-  h1 {
+    max-width: 500px; /* スマホでも画面幅を超えない */
+}
+
+h1 {
     font-size: 1.6rem;
     margin-bottom: 20px;
-  }
-  
-  .input-area {
+}
+
+.input-area {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
-  }
-  
-  input {
+}
+
+input {
     flex: 1;
     max-width: 150px;
     padding: 10px;
     font-size: 1rem;
     border-radius: 8px;
     border: 1px solid #ccc;
-  }
-  
-  button {
+}
+
+button {
     padding: 12px 16px;
     font-size: 0.95rem;
     border-radius: 14px;
@@ -37,145 +38,143 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: 
-      transform 0.15s ease,
-      box-shadow 0.15s ease,
-      background 0.2s ease;
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        background 0.2s ease;
     box-shadow: 0 6px 0 rgba(0,0,0,0.25);
-  }
-  
-  /* 投入ボタンだけ強いモーション */
+}
+
+/* 投入ボタンだけ強いモーション */
 .main-button {
     background: #111;
     color: white;
     box-shadow: 0 6px 0 rgba(0,0,0,0.25);
     transition: 
-      transform 0.15s ease,
-      box-shadow 0.15s ease,
-      background 0.2s ease;
-  }
-  
-  .main-button:hover {
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        background 0.2s ease;
+}
+
+.main-button:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 18px rgba(0,0,0,0.25);
-  }
-  
-  .main-button:active {
+}
+
+.main-button:active {
     transform: translateY(2px);
     box-shadow: 0 2px 0 rgba(0,0,0,0.25);
     animation: pressBounce 0.15s ease;
-  }
-  @keyframes pressBounce {
+}
+
+@keyframes pressBounce {
     0% { transform: translateY(2px) scale(0.97); }
     50% { transform: translateY(1px) scale(1.02); }
     100% { transform: translateY(2px) scale(1); }
-  }
-  
-  .tank {
+}
+
+.tank {
     background: white;
     padding: 24px 20px; /* 上下を少し広げる */
     border-radius: 16px;
     margin-bottom: 20px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-  
-  .tank p {
+    max-width: 500px;  /* カード幅制限 */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tank p {
     margin: 0 0 10px 0;
-  }
-  
-  .tank h2 {
+}
+
+.tank h2 {
     margin: 0;
-  }
-  
-  .projection {
+}
+
+.projection {
     font-size: 0.9rem;
     margin-bottom: 20px;
     line-height: 1.5;
-  }
-  
+    max-width: 500px;      /* カード幅に合わせる */
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
 /* トグルボタン（静かな動き） */
 .toggle-button {
     background: #f0f0f0;
     color: #333;
     box-shadow: none;
     transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  /* ホバーはわずかな色変化のみ */
-  .toggle-button:hover {
+}
+
+.toggle-button:hover {
     background: #e2e2e2;
-  }
-  
-  /* クリック時も移動させない */
-  .toggle-button:active {
+}
+
+.toggle-button:active {
     transform: none;
     box-shadow: none;
-  }
-  
-  /* 選択中状態 */
-  .toggle-button.active {
+}
+
+.toggle-button.active {
     background: #111;
     color: white;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  }
-  
-  canvas {
+}
+
+/* canvasは親幅にフィット */
+canvas {
     width: 100% !important;
-    max-width: 100%;
     height: auto !important;
-  }
+    display: block;
+    margin: 0 auto;
+}
+
 /* リセットボタン */
 #resetButton {
     background: #d64545;
     color: white;
     box-shadow: none;
     transition: background 0.2s ease, opacity 0.2s ease;
-  }
-  
-  /* ホバーはわずかな色変化のみ */
-  #resetButton:hover {
+    width: auto; /* 他のボタンと同じ幅に */
+}
+
+#resetButton:hover {
     background: #c43737;
-  }
-  
-  /* クリック時も動かさない */
-  #resetButton:active {
+}
+
+#resetButton:active {
     transform: none;
     box-shadow: none;
     opacity: 0.85;
-  }
-  /* 予測テキストとトグルの間に余白 */
-  .projection {
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #ddd;
-    max-width: 500px;      /* カード幅に合わせる */
-    margin-left: auto;
-    margin-right: auto;
 }
-  
-  /* トグル側にも少し上余白 */
-  .view-toggle {
-    margin-top: 18px;
-  }
 
-  /* グラフとリセットの間を分離 */
+.view-toggle {
+    margin-top: 18px;
+}
+
 #resetButton {
     margin-top: 32px;
     padding-top: 14px;
     border-top: 1px solid #e0e0e0;
-  }
-  /* タブレット以上 */
-  @media (min-width: 768px) {
+}
+
+/* タブレット以上 */
+@media (min-width: 768px) {
     body {
-      padding: 40px;
+        padding: 40px;
     }
-  
+
     .tank {
-      max-width: 500px;
-      margin: 0 auto 20px auto;
+        max-width: 500px;
+        margin: 0 auto 20px auto;
     }
-  
+
     canvas {
-      max-width: 700px;
-      margin: 0 auto;
+        max-width: 700px;
+        margin: 0 auto;
     }
-  }
+}
